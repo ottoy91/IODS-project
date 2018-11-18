@@ -1,0 +1,103 @@
+---
+title: "Exercise 3"
+output: html_document
+---
+
+#Exercise 3.
+
+```{r include=FALSE}
+# read the data into memory and access dplyr
+library(dplyr)
+alc <- read.table("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/alc.txt", sep=",", header=TRUE)
+
+
+```
+
+
+
+##Task 2.
+
+Names and description of the variables.
+
+```{r}
+glimpse(alc)
+summary(alc)
+
+
+```
+
+
+##Task 3.    
+
+The chosen variables are:
+
+sex - student's sex (binary: 'F' - female or 'M' - male)     
+higher - wants to take higher education (binary: yes or no)      
+failures - number of past class failures (numeric: n if 1<=n<3, else 4)      
+G3 - final grade (numeric: from 0 to 20, output target)     
+
+Hypothesises:
+There are more male high users than females.  
+Those who want to get a higher education drink less.
+Alcohol abuse affects the likelihood of passing the class.
+G3 is lower among high users.
+
+##Task 4.
+Numerically and graphically explore the distributions of your chosen variables and their relationships with alcohol consumption (use for example cross-tabulations, bar plots and box plots). Comment on your findings and compare the results of your exploration to your previously stated hypotheses. 
+The factors sex, goals,failures and will to get a high education has been individually compared to alcohol consumption with cross-tabulations.
+The relation between alcohol consumption and final grade number has been analyzed with the help of box plots.
+
+```{r}
+
+table(high_use=alc$high_use,sex=alc$sex) %>% prop.table %>% addmargins
+
+table(high_use=alc$high_use,higher_education=alc$higher) %>% prop.table %>% addmargins
+
+table(failures=alc$failures,high_use=alc$high_use) %>% prop.table %>% addmargins
+
+# library
+library(ggplot2)
+# A really basic boxplot.
+ggplot(alc, aes(x=as.factor(high_use), y=G3)) + 
+    geom_boxplot(fill="slateblue", alpha=0.2) + 
+    xlab("High user")
+ 
+
+```
+
+The results show that there are more male heavy drinkers than female and that those who want a high education drinks less than those with not such high ambitions. There is not a clear pattern to be found between the drinking habits and the failures in class and the final grade.
+
+##Task 5.
+
+The relationships between the previous variables explained with logistical regression.
+
+```{r}
+m <- glm(high_use ~ sex+failures + higher+G3, data = alc, family = "binomial")
+
+summary(m)
+#OR:t
+cbind(exp(coef(m)),exp(confint(m)))
+
+```
+
+Males posess a ~2.3 times higher risk of being high users compared to the females. The sex and the number of failures in class are related to high alcohol consumptio, the others are not.
+
+##Task 6.
+
+Provide a 2x2 cross tabulation between the variables with a statistical relationship with high/low alcohol consumption.
+```{r}
+# predict() the probability of high_use
+probabilities <- predict(m, type = "response")
+
+# add the predicted probabilities to 'alc'
+alc <- mutate(alc, probability = probabilities)
+alc <- mutate(alc, prediction = probability > 0.5)
+
+g <- ggplot(alc, aes(x = probability, y = high_use,col = prediction))
+g+geom_point()
+
+# tabulate the target variable versus the predictions
+table(high_use = alc$high_use, prediction = alc$prediction) %>% prop.table %>% addmargins
+
+```
+This model predicts more of not high users than high users which means it's not reliably accurate.
