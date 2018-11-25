@@ -24,5 +24,6 @@ gii <- mutate(gii, edu_ratio = eduF/eduM)
 gii <- mutate(gii, lab_ratio = labF/labM)
 
 #5
-joined <- inner_join(hd, gii, by = "country", suffix = c(".hd", ".gii"))
-
+human <- inner_join(hd, gii, by = "country", suffix = c(".hd", ".gii"))
+#save file
+write.csv(human,"human.csv",row.names = F)
