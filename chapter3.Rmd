@@ -4,7 +4,7 @@ output: html_document
 ---
 
 
-```{r setup, include=FALSE}
+```{r}
 #read data again and check str() and head()
 lrn2014 <- read.csv("C:/Users/Pyrintö/Documents/GitHub/IODS-project/learning2014.csv")
 str(lrn2014)

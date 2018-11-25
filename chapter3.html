@@ -125,6 +125,38 @@ $(document).ready(function () {
 </div>
 
 
+<pre class="r"><code>#read data again and check str() and head()
+lrn2014 &lt;- read.csv(&quot;C:/Users/Pyrintö/Documents/GitHub/IODS-project/learning2014.csv&quot;)
+str(lrn2014)</code></pre>
+<pre><code>## 'data.frame':    166 obs. of  7 variables:
+##  $ gender  : Factor w/ 2 levels &quot;F&quot;,&quot;M&quot;: 1 2 1 2 2 1 2 1 2 1 ...
+##  $ Age     : int  53 55 49 53 49 38 50 37 37 42 ...
+##  $ Attitude: int  37 31 25 35 37 38 35 29 38 21 ...
+##  $ deep    : num  3.58 2.92 3.5 3.5 3.67 ...
+##  $ stra    : num  3.38 2.75 3.62 3.12 3.62 ...
+##  $ surf    : num  2.58 3.17 2.25 2.25 2.83 ...
+##  $ Points  : int  25 12 24 10 22 21 21 31 24 26 ...</code></pre>
+<pre class="r"><code>#deep, stra and surf are numeric but since nothing was mentioned about this they weren't changed to integers
+head(lrn2014)</code></pre>
+<pre><code>##   gender Age Attitude     deep  stra     surf Points
+## 1      F  53       37 3.583333 3.375 2.583333     25
+## 2      M  55       31 2.916667 2.750 3.166667     12
+## 3      F  49       25 3.500000 3.625 2.250000     24
+## 4      M  53       35 3.500000 3.125 2.250000     10
+## 5      M  49       37 3.666667 3.625 2.833333     22
+## 6      F  38       38 4.750000 3.625 2.416667     21</code></pre>
+<pre class="r"><code>library(ggplot2)</code></pre>
+<pre><code>## Warning: package 'ggplot2' was built under R version 3.4.4</code></pre>
+<pre class="r"><code>library(dplyr)</code></pre>
+<pre><code>## Warning: package 'dplyr' was built under R version 3.4.4</code></pre>
+<pre><code>## 
+## Attaching package: 'dplyr'</code></pre>
+<pre><code>## The following objects are masked from 'package:stats':
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from 'package:base':
+## 
+##     intersect, setdiff, setequal, union</code></pre>
 <p>We check how the different variables correlate to the points.</p>
 <pre class="r"><code>summary(lrn2014)</code></pre>
 <pre><code>##  gender       Age           Attitude          deep            stra      

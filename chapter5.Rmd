@@ -2,10 +2,11 @@
 title: "chapter4.Rmd"
 output: html_document
 ---
+# Exercise 4
 ## 2. Description of dataset
 The Boston dataset has been used to evaluate different variables affecting the house pricing in the Boston suburbs.
 There are 14 variables (crime rate, nitrogen oxides, taxes, location etc.) containing a total of 506 observations.
-```{r setup, include=FALSE}
+```{r}
 # access the MASS package
 library(MASS)
 
@@ -63,7 +64,6 @@ plot(lda.fit, dimen = 2, col = classes, pch = classes)
 The results show that the model is good in predicting values in the high-quantile.
 
 ```{r}
-
 correct_classes <- test$crime
 lda.pred <- predict(lda.fit, newdata = test)
 table(correct = correct_classes, predicted = lda.pred$class)
