@@ -33,6 +33,7 @@ hist(Boston$nox)
 After standardizing the dataset all variables are scaled around the mean zero with the standard deviation one. A categorial crime rate variable is created using the quantiles as break points. The new crime variable is set to replace the old crim variable in the dataset. Therafter the dataset is divided into train and test sets, so that 80% of the data belongs to the train set.
 
 ```{r}
+set.seed(123)
 boston_scaled <- scale(Boston)
 summary(boston_scaled)
 boston_scaled <- as.data.frame(boston_scaled)
@@ -57,8 +58,14 @@ plot(lda.fit, dimen = 2, col = classes, pch = classes)
 
 ```
 
-## 6. 
+## 6. Prediction cross table
+
+The results show that the model is good in predicting values in the high-quantile.
 
 ```{r}
 
+correct_classes <- test$crime
+lda.pred <- predict(lda.fit, newdata = test)
+table(correct = correct_classes, predicted = lda.pred$class)
 ```
+
