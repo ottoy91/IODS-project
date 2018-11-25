@@ -1,0 +1,64 @@
+---
+title: "chapter4.Rmd"
+output: html_document
+---
+## 2. Description of dataset
+The Boston dataset has been used to evaluate different variables affecting the house pricing in the Boston suburbs.
+There are 14 variables (crime rate, nitrogen oxides, taxes, location etc.) containing a total of 506 observations.
+```{r setup, include=FALSE}
+# access the MASS package
+library(MASS)
+
+# load the data
+data("Boston")
+
+# explore the dataset
+str(Boston)
+dim(Boston)
+```
+
+## 3. Graphical overview and summary of data
+
+The scatter plots below reveal the possible correlations between two variables from the dataset. There can be seen that the the air pollution (nox) is higher when the average distance to 5 Boston employment centres (dis) is shorter. From the histogram can be seen that the distribution of dis is skewed right and the distribution of nox slightly skewed to the right. Another variable that seems to correlate to higher air pollution is the proportion of owner-occupied units built prior to 1940 (age). The median value of owner-occupied homes (medv) are also affected by the lower status of the population (lstat).
+
+```{r}
+summary(Boston)
+pairs(Boston)
+hist(Boston$dis)
+hist(Boston$nox)
+```
+
+## 4. Standardize the dataset
+
+After standardizing the dataset all variables are scaled around the mean zero with the standard deviation one. A categorial crime rate variable is created using the quantiles as break points. The new crime variable is set to replace the old crim variable in the dataset. Therafter the dataset is divided into train and test sets, so that 80% of the data belongs to the train set.
+
+```{r}
+boston_scaled <- scale(Boston)
+summary(boston_scaled)
+boston_scaled <- as.data.frame(boston_scaled)
+bins <- quantile(boston_scaled$crim)
+crime <- cut(boston_scaled$crim, breaks = bins, include.lowest = TRUE, labels = c("low", "med_low", "med_high", "high"))
+
+boston_scaled <- dplyr::select(boston_scaled, -crim)
+boston_scaled <- data.frame(boston_scaled, crime)
+
+n <- nrow(boston_scaled)
+ind <- sample(n,  size = n * 0.8)
+train <- boston_scaled[ind,]
+test <- boston_scaled[-ind,]
+```
+
+## 5. LDA
+
+```{r}
+lda.fit <- lda(crime ~ ., data = train)
+classes <- as.numeric(train$crime)
+plot(lda.fit, dimen = 2, col = classes, pch = classes)
+
+```
+
+## 6. 
+
+```{r}
+
+```
