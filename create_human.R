@@ -14,12 +14,10 @@ dim(gii)
 summary(gii)
 
 #3
-names(hd)
 names(hd) <- c("hd_rank","country","HDI","LE_at_birth","exp_edu_years","mean_edu_years","GNI_per_capita","GNI_rank")
-names(hd)
-names(gii)
+
 names(gii) <- c("gii_rank","country","gii","mmr","abr","prp","eduF","eduM","labF","labM")
-names(gii)
+
 
 #4
 gii <- mutate(gii, edu_ratio = eduF/eduM)
@@ -27,4 +25,4 @@ gii <- mutate(gii, lab_ratio = labF/labM)
 
 #5
 joined <- inner_join(hd, gii, by = "country", suffix = c(".hd", ".gii"))
-summary(joined)
+
