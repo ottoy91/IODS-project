@@ -1,0 +1,68 @@
+---
+title: "chapter6.Rmd"
+output: html_document
+---
+#Exercise 5
+##Task 1
+It seems like the expected years of schooling (Edu.Exp) correlates strongly to the life expectancy at birth (Life.Exp), Gross National Income per capita (GNI), maternal mortality ratio (Mat.Mor) and adolescent birth rate (Ado.Birth)
+The Gross National Income per capita, maternal mortality ratio  and adolescent birth rate are skewed right.
+```{r}
+human <- read.csv("http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/human2.txt", stringsAsFactors = F)
+library(GGally)
+ggpairs(human)
+summary(human)
+```
+
+##Task 2
+
+Perform principal component analysis.
+
+```{r}
+pca_human <- prcomp(human)
+s <- summary(pca_human)
+pca_pr <- round(1*s$importance[2,],digits=5)
+pca_pr <- round(pca_pr*100,1)
+pc_lab <- paste0(names(pca_pr)," (",pca_pr,"%)")
+biplot(pca_human, choices = 1:2, cex = c(0.8, 1), col = c("grey40", "deeppink2"),xlab=pc_lab[1],ylab=pc_lab[2])
+```
+
+##Task 3
+
+Standardize the variables and perform PCA.
+
+```{r}
+human_std <- scale(human)
+pca_human_std <- prcomp(human_std)
+s <- summary(pca_human_std)
+pca_pr <- round(1*s$importance[2,],digits=5)
+pca_pr <- round(pca_pr*100,1)
+pc_lab <- paste0(names(pca_pr), "(",pca_pr,"%)")
+biplot(pca_human_std,cex = c(0.8,1),col=c("grey40","deeppink2"),xlab=pc_lab[1],ylab=pc_lab[2])
+
+```
+
+##Task 4
+
+The first principal component dimension (PC1) describes developing countries since it captures high rates of mortality during maternity and giving birth at a young age and how it seems to have a negative impact on for example GNI and life expectancy at birth. The second principal component dimension (PC2) describes welfare since it captures a great amount of the variables Labo.FM and Parli.F.
+```{r}
+print(pca_human_std)
+```
+
+##Task 5
+
+The first dimension holds a strong link to the variables "how" and and "where". The second dimension reminds of the first one. The third dimension holds a strong link to the variables "Tea", "How" and "sugar".
+
+```{r}
+library(FactoMineR)
+library(tidyr)
+data(tea)
+keep_columns <- c("Tea","How","how","sugar","where","lunch")
+
+tea_time <- dplyr::select(tea, keep_columns)
+str(tea_time)
+summary(tea_time)
+gather(tea_time) %>% ggplot(aes(value))+facet_wrap("key",scales="free")+geom_bar()+theme(axis.text.x = element_text(angle = 45, hjust = 1, size =8))
+mca <- MCA(tea_time, graph = FALSE)
+summary(mca)
+plot(mca,invisible = c("ind"))
+```
