@@ -1,0 +1,149 @@
+---
+title: "chapter 6"
+output: html_document
+---
+#Analysis of longitudinal data   
+
+```{r,echo=TRUE, warning=FALSE}
+
+library(ggplot2)
+library(tidyr)
+#data warning
+source("meet_and_repeat.R")
+
+
+```
+
+##1 RATS   
+
+In the figures we can see the development of growth based on diet among rats. The rats are divided into three groups that get different diets. We can see that the first group consists of smaller rats and that there in group 2 seems to be one rat that is bigger than the rest of the group.   
+
+
+```{r, warning=FALSE}
+
+ratsl <-  ratsl %>% mutate(time = as.integer(substr(time,3,4)))
+
+ggplot(ratsl, aes(x = time, y = weight, linetype = ID)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ Group, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(ratsl$weight), max(ratsl$weight)))
+
+
+
+```
+
+The boxplot visualizes the mean-weights of the rats per group. Here the one rat in group 2 can be seen as an outlier. It will be removed from the data because it will affect the mean too much. This can be seen in the second boxplot.   
+
+```{r}
+
+ratsl8S <- ratsl %>%
+  group_by(Group, ID) %>%
+  summarise( mean=mean(weight) ) %>%
+  ungroup()
+
+glimpse(ratsl8S)
+
+ggplot(ratsl8S, aes(x = Group, y = mean)) +
+  geom_boxplot() +
+  stat_summary(fun.y = "mean", geom = "point", shape=23, size=4, fill = "white") +
+  scale_y_continuous(name = "mean(weight), days 1-64")
+
+ratsl8S1 <- ratsl8S %>%
+  filter(mean < 550)
+
+ggplot(ratsl8S1, aes(x = Group, y = mean)) +
+  geom_boxplot() +
+  stat_summary(fun.y = "mean", geom = "point", shape=23, size=4, fill = "white") +
+  scale_y_continuous(name = "mean(weight), days 1-64")
+
+
+```
+
+
+Here we test if the diets have an affect on the weights of the rats. The analyze which doesn't consider the first days weight show that there's a difference in the outcoming. As we can see in the previous graphs we can consider that there is a difference between the groups already from the start which we count as a baseline weight. When we adjust the model based on the first days weights there is no statistically significant difference between the groups.
+
+```{r}
+
+ratsl8S2 <- ratsl8S %>%
+  mutate(days1 = rats$WD1)
+
+# Fit the linear model with the mean as the response 
+fit0 <- lm(mean ~ Group, data = ratsl8S2)
+
+fit <- lm(mean ~ days1 + Group, data = ratsl8S2)
+
+# Compute the analysis of variance table for the fitted model with anova()
+anova(fit0)
+anova(fit)
+```
+
+#2 BPRS
+
+The data contains 40 male subjects which are divided into two groups based on the psychiatric treatment they get. Each subject is rated from week0 forward based on a brief psychiatric rating scale (BPRS). The scale is used to evaluate the possibility that the subject suffers from schizophrenia.
+
+```{r}
+
+BPRSL <-  BPRSL %>% mutate(week = as.integer(substr(weeks,5,5)))
+
+ggplot(BPRSL, aes(x = week, y = bprs, linetype = subject)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(BPRSL$bprs), max(BPRSL$bprs)))
+```
+
+The regression model shows that the time affects the outcome, not the treatment itself. But the regression model doesn't take the subject into consideration. Since the regression model assumes that all the results (bprs) are independent, which isn't true because there are multiple measurements from the same individual, we make a generalized linear mixed-effect model.
+
+```{r}
+
+BPRS_reg <- lm(bprs ~ week + treatment, data = BPRSL)
+summary(BPRS_reg)
+
+```
+
+
+The three generalized linear mixed-effects models below shows that the random intercept and slope model without interaction is the best. It shows that the time affects the bprs-value but the treatment doesn't.
+
+```{r, warning=FALSE}
+library(lme4)
+library(lmerTest)
+BPRS_ref <- lmer(bprs ~ week + treatment + (1 | subject), data = BPRSL, REML = FALSE)
+
+BPRS_ref1 <- lmer(bprs ~ week + treatment + (week | subject), data = BPRSL, REML = FALSE)
+summary(BPRS_ref1)
+
+anova(BPRS_ref1, BPRS_ref)
+
+BPRS_ref2 <- lmer(bprs ~ week * treatment + (week | subject), data = BPRSL, REML = FALSE)
+
+anova(BPRS_ref2, BPRS_ref1)
+```
+
+The second plot represents the plot of fitted values of BPRS which shows that the both treatment groups are behaving in a similar way. The plot shows that the bprs-values are decreasing with time.
+
+```{r}
+ggplot(BPRSL, aes(x = week, y = bprs, linetype = subject)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(BPRSL$bprs), max(BPRSL$bprs)))
+
+Fitted <- fitted(BPRS_ref1)
+
+BPRSL <- BPRSL %>%
+  mutate(Fitted)
+
+ggplot(BPRSL, aes(x = week, y = Fitted, linetype = subject)) +
+  geom_line() +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  theme(legend.position = "none") + 
+  scale_y_continuous(limits = c(min(BPRSL$bprs), max(BPRSL$bprs)))
+
+```
+
+
