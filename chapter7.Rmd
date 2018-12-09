@@ -79,7 +79,7 @@ anova(fit0)
 anova(fit)
 ```
 
-#2 BPRS
+##2 BPRS
 
 The data contains 40 male subjects which are divided into two groups based on the psychiatric treatment they get. Each subject is rated from week0 forward based on a brief psychiatric rating scale (BPRS). The scale is used to evaluate the possibility that the subject suffers from schizophrenia.
 
